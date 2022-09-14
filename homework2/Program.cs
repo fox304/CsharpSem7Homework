@@ -1,119 +1,92 @@
 ﻿// В двумерном массиве целых чисел. Удалить строку и столбец, на пересечении которых расположен наименьший элемент.
+
+// В программе ведётся поиск всех минимальных элементов и удаление строк и столбецов, 
+// на пересечении которых расположены наименьшие элементы.
+
 Console.OutputEncoding = System.Text.Encoding.UTF8;
 
-
-
-void FillPrintArray(int [,] arr)
-
+void FillPrintArray(int[,] arr)
 {
     for (int i = 0; i < arr.GetLength(0); i++)
     {
         for (int j = 0; j < arr.GetLength(1); j++)
         {
-            arr[i,j] = new Random().Next(1,10);
-            Console.Write("{0}  ",arr[i,j]);
-}
-Console.WriteLine();
-
+            arr[i, j] = new Random().Next(1, 10);
+            Console.Write("{0,5}", arr[i, j]);
+        }
+        Console.WriteLine();
     }
 }
 
-int FindMinElement(int [,] arr)
-{
-    int minelement = 10000;
-    for (int i = 0;i < arr.GetLength(0);i++)
-    {
-        for (int j = 0; j < arr.GetLength(1); j++)
-        {
-            if (arr[i,j] < minelement) minelement = arr[i,j];      
-        } 
-    }
-    return  minelement;
-}
-
-void FindIndexAllMinElements(int [,] arr,int [] indexminelements,int min)
+void FindMinElement(int[,] arr, int[] minelementindex)
 {
     for (int i = 0; i < arr.GetLength(0); i++)
     {
         for (int j = 0; j < arr.GetLength(1); j++)
+        {
+            if (arr[i, j] < minelementindex[0])
             {
-                if (arr[i,j] == min)
-                {
-                    indexminelements[0] = i;
-                    indexminelements[1] = j;
-                    InsertMinesOne(arr,indexminelements);
-                }
-                
-                
-            }      
-    }
-}
-
-void InsertMinesOne(int [,] arr,int [] indexminelements)
-{
-
-    for (int i = 0; i < arr.GetLength(0); i++)
-    {
-        for (int j = 0; j < arr.GetLength(1); j++)
-        {
-            if (j == indexminelements[1] || i == indexminelements[0]) arr[i,j] = -1;
+                minelementindex[0] = arr[i, j];
+            }
         }
     }
-    Print(arr);
-    Console.WriteLine();
 }
 
-void PrintOutcome(int [,] arr)
+void ReplaceIndexPositionsMinElements(int[,] arr, int[] minelementindex)// Подмена элементов на минус один ,
+                                                                       // т.е. вычёркиваем столбцы и строки , которые связаны с минимумом
 {
-
     for (int i = 0; i < arr.GetLength(0); i++)
     {
         for (int j = 0; j < arr.GetLength(1); j++)
         {
-            if (arr[i,j] == -1) continue;
-            Console.Write("{0}  ",arr[i,j]);
+            if (arr[i, j] == minelementindex[0]) continue;
+            if (i == minelementindex[1] || j == minelementindex[2]) arr[i, j] = -1;     
         }
-        Console.WriteLine();
     }
-
+    arr[minelementindex[1], minelementindex[2]] = -1;
 }
-void Print(int [,] arr)
-{
 
+void IsMinElement(int[,] arr, int[] minelementindex) // Поиск ещё одинаковых минимумов
+{
     for (int i = 0; i < arr.GetLength(0); i++)
     {
         for (int j = 0; j < arr.GetLength(1); j++)
         {
-            
-            Console.Write("{0} \t",arr[i,j]);
+            if (arr[i, j] == minelementindex[0])
+            {
+                minelementindex[1] = i;
+                minelementindex[2] = j;
+                ReplaceIndexPositionsMinElements(arr, minelementindex);
+            }
+        }
+    }
+}
+
+void PrintOutcome(int[,] arr) 
+{
+    for (int i = 0; i < arr.GetLength(0); i++)
+    {
+        for (int j = 0; j < arr.GetLength(1); j++)
+        {
+            if (arr[i, j] == -1) continue;
+            Console.Write("{0,5}", arr[i, j]);
         }
         Console.WriteLine();
     }
-
 }
+int[,] massive = new int[15, 7];
+int min = 10000;                        // Завысим  значение минимального элемента: min = 10000;
+int[] minelementindex = { min, 0, 0 }; // Создадим массив с 3 элементами : 
+                                      // 1-ый минимальное значение элемента
+                                     // 2-ой индекс по горизонтали минимального значения элемента
+                                    // 3-ий индекс по вертикали минимального значения элемента
 
+Console.WriteLine("Итак , наш исходный массив такой ");
+FillPrintArray(massive);                 // Печать исходного массива
+Console.WriteLine(new String('*', 50));
 
+FindMinElement(massive, minelementindex); // Поиск минимума
 
-
-int [] indexminelements = new int [2];
-int [,] massive = new int [5,7];
-
-FillPrintArray(massive);
-Console.WriteLine(new String('*',10));
-
-int min = FindMinElement(massive);
-
-
-FindIndexAllMinElements(massive,indexminelements,min);
-
-
-
-
-
-
-Console.WriteLine();
-
-
-
-
-
+IsMinElement(massive, minelementindex);  // Поиск повторяющихся минимальных элементов
+Console.WriteLine($"После удаления строк и столбцов, на пересечении которых расположены наименьшие элементы {minelementindex[0]} будет так");
+PrintOutcome(massive);
